@@ -8,6 +8,10 @@ Created by Stuyk (Trevor Wessel)
 
 https://github.com/sponsors/Stuyk/
 
+❤️ Want direct support for my scripts and tutoring? Check out my Patreon.
+
+https://patreon.com/stuyk
+
 ⭐ This repository if you found it useful!
 
 ---
