@@ -114,7 +114,7 @@ Vue.component('tab-hair', {
                         Eyebrows Color
                     </div>
                     <div class="value">
-                        {{ data.eyebrows }} | {{ getColorCount() }}
+                        {{ data.eyebrowsColor1 }} | {{ getColorCount() }}
                     </div>
                 </div>
                 <div class="controls">
