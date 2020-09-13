@@ -2,15 +2,9 @@
 
 # Open Source - Character Editor - alt:V
 
-Created by Stuyk (Trevor Wessel)
+[❤️ Become a Sponsor of my Open Source Work](https://github.com/sponsors/Stuyk/)
 
-❤️ Please support my open source work by donating. I'm here to provide general context for complicated procedures for you new developers. ❤️
-
-https://github.com/sponsors/Stuyk/
-
-❤️ Want direct support for my scripts and tutoring? Check out my Patreon.
-
-https://patreon.com/stuyk
+[⌨️ Learn how to script for alt:V](https://stuyk.github.io/altv-javascript-guide/)
 
 ⭐ This repository if you found it useful!
 
