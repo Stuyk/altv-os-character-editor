@@ -4,6 +4,7 @@ import alt from 'alt-server';
 alt.on('character:Edit', handleCharacterEdit);
 alt.on('character:Sync', handleCharacterSync);
 alt.onClient('character:Done', handleDone);
+alt.onClient(`character:AwaitModel`, handleAwaitModel);
 
 function handleCharacterEdit(player, oldData = null) {
     if (!player || !player.valid) {
@@ -11,6 +12,11 @@ function handleCharacterEdit(player, oldData = null) {
     }
 
     alt.emitClient(player, 'character:Edit', oldData);
+}
+
+function handleAwaitModel(player, characterSex) {
+    player.model = characterSex === 0 ? 'mp_f_freemode_01' : 'mp_m_freemode_01';
+    alt.emitClient(player, `character:FinishSync`);
 }
 
 function handleCharacterSync(player, data) {

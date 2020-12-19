@@ -9,6 +9,7 @@ const url = `http://resource/client/html/index.html`;
 let view;
 let oldData = {};
 let prevData = {};
+let tempData = {};
 let readyInterval;
 
 native.requestModel(fModel);
@@ -16,6 +17,7 @@ native.requestModel(mModel);
 
 alt.onServer('character:Edit', handleEdit);
 alt.onServer('character:Sync', handleSync);
+alt.onServer(`character:FinishSync`, handleFinishSync);
 
 function handleEdit(_oldData) {
     oldData = _oldData;
@@ -84,94 +86,61 @@ function showCursor(state) {
     }
 }
 
-function doesModelMatch(model) {
-    return new Promise(resolve => {
-        let attempts = 0;
-        let interval = alt.setInterval(() => {
-            attempts++;
-
-            if (attempts > 5000) {
-                alt.clearInterval(interval);
-                resolve();
-                return;
-            }
-
-            const pModel = native.getEntityModel(alt.Player.local.scriptID);
-            if (pModel !== model) {
-                return;
-            }
-
-            resolve();
-            alt.clearInterval(interval);
-        }, 25);
-    });
-}
-
-async function handleSync(data) {
-    native.clearPedBloodDamage(alt.Player.local.scriptID);
-    native.clearPedDecorations(alt.Player.local.scriptID);
-    native.setPedHeadBlendData(alt.Player.local.scriptID, 0, 0, 0, 0, 0, 0, 0, 0, 0, false);
-
-    const hash = data.sex === 0 ? fModel : mModel;
-    if (!prevData || prevData.sex !== data.sex) {
-        native.setPlayerModel(alt.Player.local.scriptID, hash); // Not Synced. Be careful using this. alt.model on server-side is preferred.
-        await doesModelMatch(hash);
-    }
-
+function handleFinishSync() {
     native.setPedHeadBlendData(alt.Player.local.scriptID, 0, 0, 0, 0, 0, 0, 0, 0, 0, false);
     native.setPedHeadBlendData(
         alt.Player.local.scriptID,
-        data.faceFather,
-        data.faceMother,
+        tempData.faceFather,
+        tempData.faceMother,
         0,
-        data.skinFather,
-        data.skinMother,
+        tempData.skinFather,
+        tempData.skinMother,
         0,
-        parseFloat(data.faceMix),
-        parseFloat(data.skinMix),
+        parseFloat(tempData.faceMix),
+        parseFloat(tempData.skinMix),
         0,
         false
     );
 
     // Facial Features
-    for (let i = 0; i < data.structure.length; i++) {
-        const value = data.structure[i];
+    for (let i = 0; i < tempData.structure.length; i++) {
+        const value = tempData.structure[i];
         native.setPedFaceFeature(alt.Player.local.scriptID, i, value);
     }
 
     // Overlay Features - NO COLORS
-    for (let i = 0; i < data.opacityOverlays.length; i++) {
-        const overlay = data.opacityOverlays[i];
+    for (let i = 0; i < tempData.opacityOverlays.length; i++) {
+        const overlay = tempData.opacityOverlays[i];
         native.setPedHeadOverlay(alt.Player.local.scriptID, overlay.id, overlay.value, parseFloat(overlay.opacity));
     }
 
     // Hair
-    const collection = native.getHashKey(data.hairOverlay.collection);
-    const overlay = native.getHashKey(data.hairOverlay.overlay);
+    const collection = native.getHashKey(tempData.hairOverlay.collection);
+    const overlay = native.getHashKey(tempData.hairOverlay.overlay);
     native.addPedDecorationFromHashes(alt.Player.local.scriptID, collection, overlay);
-    native.setPedComponentVariation(alt.Player.local.scriptID, 2, data.hair, 0, 0);
-    native.setPedHairColor(alt.Player.local.scriptID, data.hairColor1, data.hairColor2);
+    native.setPedComponentVariation(alt.Player.local.scriptID, 2, tempData.hair, 0, 0);
+    native.setPedHairColor(alt.Player.local.scriptID, tempData.hairColor1, tempData.hairColor2);
 
     // Facial Hair
-    native.setPedHeadOverlay(alt.Player.local.scriptID, 1, data.facialHair, data.facialHairOpacity);
-    native.setPedHeadOverlayColor(alt.Player.local.scriptID, 1, 1, data.facialHairColor1, data.facialHairColor1);
+    native.setPedHeadOverlay(alt.Player.local.scriptID, 1, tempData.facialHair, tempData.facialHairOpacity);
+    native.setPedHeadOverlayColor(alt.Player.local.scriptID, 1, 1, tempData.facialHairColor1, tempData.facialHairColor1);
 
     // Eyebrows
-    native.setPedHeadOverlay(alt.Player.local.scriptID, 2, data.eyebrows, 1);
-    native.setPedHeadOverlayColor(alt.Player.local.scriptID, 2, 1, data.eyebrowsColor1, data.eyebrowsColor1);
+    native.setPedHeadOverlay(alt.Player.local.scriptID, 2, tempData.eyebrows, 1);
+    native.setPedHeadOverlayColor(alt.Player.local.scriptID, 2, 1, tempData.eyebrowsColor1, tempData.eyebrowsColor1);
 
     // Decor
-    for (let i = 0; i < data.colorOverlays.length; i++) {
-        const overlay = data.colorOverlays[i];
+    for (let i = 0; i < tempData.colorOverlays.length; i++) {
+        const overlay = tempData.colorOverlays[i];
         const color2 = overlay.color2 ? overlay.color2 : overlay.color1;
         native.setPedHeadOverlay(alt.Player.local.scriptID, overlay.id, overlay.value, parseFloat(overlay.opacity));
         native.setPedHeadOverlayColor(alt.Player.local.scriptID, overlay.id, 1, overlay.color1, color2);
     }
 
     // Eyes
-    native.setPedEyeColor(alt.Player.local.scriptID, data.eyes);
+    native.setPedEyeColor(alt.Player.local.scriptID, tempData.eyes);
 
-    if (data.sex === 0) {
+    if (tempData.sex === 0) {
         native.setPedComponentVariation(alt.Player.local.scriptID, 3, 15, 0, 0); // arms
         native.setPedComponentVariation(alt.Player.local.scriptID, 4, 14, 0, 0); // pants
         native.setPedComponentVariation(alt.Player.local.scriptID, 6, 35, 0, 0); // shoes
@@ -185,5 +154,20 @@ async function handleSync(data) {
         native.setPedComponentVariation(alt.Player.local.scriptID, 11, 91, 0, 0); // torso
     }
 
-    prevData = data;
+    prevData = tempData;
+}
+
+async function handleSync(data) {
+    tempData = data;
+
+    native.clearPedBloodDamage(alt.Player.local.scriptID);
+    native.clearPedDecorations(alt.Player.local.scriptID);
+    native.setPedHeadBlendData(alt.Player.local.scriptID, 0, 0, 0, 0, 0, 0, 0, 0, 0, false);
+
+    const modelNeeded = data.sex === 0 ? fModel : mModel;
+    if (modelNeeded !== native.getEntityModel(alt.Player.local.scriptID)) { // native.getEntityModel can be replaced with alt.Player.local.model in later updates.
+        alt.emitServer(`character:AwaitModel`, data.sex);
+    } else {
+        handleFinishSync();
+    }
 }
