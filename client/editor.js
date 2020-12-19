@@ -13,8 +13,6 @@ let readyInterval;
 
 native.requestModel(fModel);
 native.requestModel(mModel);
-alt.loadModel(fModel);
-alt.loadModel(mModel);
 
 alt.onServer('character:Edit', handleEdit);
 alt.onServer('character:Sync', handleSync);
@@ -116,7 +114,7 @@ async function handleSync(data) {
 
     const hash = data.sex === 0 ? fModel : mModel;
     if (!prevData || prevData.sex !== data.sex) {
-        native.setPlayerModel(alt.Player.local.scriptID, hash);
+        native.setPlayerModel(alt.Player.local.scriptID, hash); // Not Synced. Be careful using this. alt.model on server-side is preferred.
         await doesModelMatch(hash);
     }
 

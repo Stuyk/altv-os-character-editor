@@ -18,6 +18,20 @@ function handleCharacterSync(player, data) {
         return;
     }
 
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch(err) {
+            throw new Error(`[Character Editor] Failed to sync character. Character data format is not object or JSON string.`);
+        }
+    }
+
+    if (data.sex === 0) {
+        player.model = 'mp_f_freemode_01';
+    } else {
+        player.model = 'mp_m_freemode_01';
+    }
+
     alt.emitClient(player, 'character:Sync', data);
 }
 

@@ -55,7 +55,7 @@ However, there's a few rules and endpoints you need to use to sync players.
 1. Show the editor to the player.
 2. Player finishes.
 3. Store the data sent up to server.
-4. Resynchronize the player's face.
+4. Resynchronize the player's face from the server using `character:Sync`
 5. Done.
 
 **Existing Character Steps**
@@ -124,6 +124,7 @@ Store the data or do whatever you want with it.
 ```js
 alt.on('character:Done', (player, data) => {
     alt.emit('character:Sync', player, data);
+    player.pos = player.pos; // This is used to prevent interior bugs. May require a small delay.
     console.log(data);
 });
 ```
