@@ -52,12 +52,12 @@ function closeView() {
 }
 
 function handleDone(newData) {
-    alt.emitServer('character:Done', newData);
+    alt.emitServer('character:Done', JSON.stringify(newData));
     closeView();
 }
 
 function handleCancel() {
-    alt.emitServer('character:Done', oldData);
+    alt.emitServer('character:Done', JSON.stringify(oldData));
     closeView();
 }
 
